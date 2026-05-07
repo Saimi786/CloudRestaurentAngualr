@@ -1,0 +1,45 @@
+<div class="shell">
+  <aside class="sidebar">
+    <div class="brand">CloudRestaurent</div>
+    <nav>
+      <a routerLink="/dashboard" routerLinkActive="active">Dashboard</a>
+      <a routerLink="/tenant" routerLinkActive="active">Tenant</a>
+      <a routerLink="/companies" routerLinkActive="active">Companies</a>
+      <a routerLink="/branches" routerLinkActive="active">Branches</a>
+
+      <div class="nav-section">Catalog</div>
+      <a routerLink="/catalog/products" routerLinkActive="active">Products</a>
+      <a routerLink="/catalog/categories" routerLinkActive="active">Categories</a>
+      <a routerLink="/catalog/unit-groups" routerLinkActive="active">Unit Groups</a>
+      <a routerLink="/catalog/units" routerLinkActive="active">Units</a>
+
+      <div class="nav-section">Inventory</div>
+      <a routerLink="/inventory/balances" routerLinkActive="active">Stock Balances</a>
+      <a routerLink="/inventory/movements" routerLinkActive="active">Movements</a>
+
+      <div class="nav-section">Admin</div>
+      <a routerLink="/users" routerLinkActive="active">Users</a>
+    </nav>
+  </aside>
+
+  <div class="main">
+    <header class="topbar">
+      <div class="topbar-title">
+        @if (auth.user(); as user) {
+          <span class="muted">Tenant {{ user.tenantId.substring(0, 8) }}</span>
+        }
+      </div>
+      <div class="topbar-user">
+        @if (auth.user(); as user) {
+          <span>{{ user.fullName }}</span>
+          <button class="logout" (click)="logout()">Sign out</button>
+        }
+      </div>
+    </header>
+    <main class="content">
+      <router-outlet />
+    </main>
+  </div>
+
+  <app-notification-host />
+</div>
