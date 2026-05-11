@@ -346,7 +346,7 @@ code, .mono { font-family: var(--font-mono); font-size: 0.85em; }
   gap: 0.35rem;
 
   label {
-    font-size: 0.75rem;
+    font-size: 0.74rem;
     font-weight: 600;
     color: var(--c-text-muted);
     text-transform: uppercase;
@@ -354,7 +354,7 @@ code, .mono { font-family: var(--font-mono); font-size: 0.85em; }
   }
   input, select, textarea {
     font-family: inherit;
-    padding: 0.55rem 0.8rem;
+    padding: 0.6rem 0.85rem;
     border: 1px solid var(--c-border-strong);
     border-radius: var(--radius-md);
     font-size: 0.9rem;
@@ -362,6 +362,7 @@ code, .mono { font-family: var(--font-mono); font-size: 0.85em; }
     background: var(--c-surface);
     transition: border-color var(--t-fast), box-shadow var(--t-fast), background var(--t-fast);
     line-height: 1.4;
+    min-height: 38px;
 
     &::placeholder { color: var(--c-text-subtle); }
     &:hover:not(:disabled):not(:focus) { border-color: var(--c-text-subtle); }
@@ -416,6 +417,150 @@ code, .mono { font-family: var(--font-mono); font-size: 0.85em; }
   margin: 0.5rem 0 0;
   padding-top: 0.85rem;
   border-top: 1px solid var(--c-divider);
+}
+
+/* Section header *inside* a panel/form — auto-styled so every existing form
+   that uses <h3 class="form-section">…</h3> picks up the polish for free. */
+.form-section {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  margin: 1rem 0 0.85rem;
+  padding: 0 0 0.65rem;
+  border-bottom: 1px solid var(--c-divider);
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: var(--c-text);
+  letter-spacing: -0.005em;
+
+  &::before {
+    content: '';
+    width: 4px;
+    height: 18px;
+    background: linear-gradient(180deg, var(--c-primary), var(--c-primary-hover));
+    border-radius: 2px;
+  }
+  /* First section in a form doesn't need top margin. */
+  &:first-child { margin-top: 0; }
+}
+
+/* =============================================================
+   Form Card system — the new canonical structure for every CRUD edit page.
+   Compose any form as a stack of <section class="form-card">…</section> with
+   a card-head + card-body. Cards collapse cleanly on mobile via .form-grid.
+   ============================================================= */
+.form-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  max-width: 1080px;
+  padding-bottom: 5rem; /* breathing room for the sticky action bar */
+}
+
+.form-card {
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-xs);
+  overflow: hidden;
+  transition: box-shadow var(--t-fast);
+
+  &:hover { box-shadow: var(--shadow-sm); }
+
+  .card-head {
+    padding: 1rem 1.5rem 0.75rem;
+    border-bottom: 1px solid var(--c-divider);
+    background: linear-gradient(180deg, var(--c-surface-alt) 0%, transparent 100%);
+
+    h2, h3 {
+      margin: 0;
+      font-size: 1rem;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+      display: flex; align-items: center; gap: 0.5rem;
+    }
+    .card-sub {
+      display: block;
+      margin-top: 0.2rem;
+      font-size: 0.78rem;
+      color: var(--c-text-muted);
+    }
+  }
+  .card-body {
+    padding: 1.25rem 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+
+    @media (max-width: 540px) { padding: 1rem; }
+  }
+}
+
+/* Multi-column field grid (collapses on small screens). */
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 0.85rem 1rem;
+
+  .field.span-2 { grid-column: span 2; }
+  .field.span-full { grid-column: 1 / -1; }
+  @media (max-width: 700px) {
+    .field.span-2 { grid-column: span 1; }
+  }
+}
+
+/* Sticky action bar at the bottom of a form page — always-visible Save. */
+.sticky-actions {
+  position: sticky;
+  bottom: 0;
+  margin-top: 0.5rem;
+  padding: 0.85rem 1.25rem;
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 -4px 16px rgba(15, 23, 42, 0.06), var(--shadow-sm);
+  display: flex;
+  gap: 0.6rem;
+  justify-content: flex-end;
+  align-items: center;
+  z-index: 10;
+
+  @media (max-width: 540px) {
+    flex-direction: column-reverse;
+    .btn, .btn-lg { width: 100%; justify-content: center; }
+  }
+}
+
+/* Toggle pill — checkbox styled as a yes/no badge. Works on any form. */
+.toggle-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.45rem 0.9rem;
+  border-radius: var(--radius-pill);
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  user-select: none;
+  background: var(--c-surface-alt);
+  color: var(--c-text-muted);
+  border: 1px solid var(--c-border);
+  transition: all var(--t-fast);
+
+  input { position: absolute; opacity: 0; pointer-events: none; }
+  .dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--c-text-subtle);
+    transition: all var(--t-fast);
+  }
+  &:hover { background: var(--c-surface-hover); }
+  &.on {
+    background: var(--c-success-soft);
+    color: var(--c-success-fg);
+    border-color: transparent;
+    .dot { background: var(--c-success); box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.18); }
+  }
 }
 
 /* =============================================================

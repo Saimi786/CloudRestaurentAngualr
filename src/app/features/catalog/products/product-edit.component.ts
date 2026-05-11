@@ -26,163 +26,207 @@ import { NotificationService } from '../../../core/notifications/notification.se
     <div class="page-header">
       <div>
         <h1>{{ isEdit() ? 'Edit Product' : 'New Product' }}</h1>
-        <p class="muted">Menu item / SKU.</p>
+        <p>Menu item or SKU — what shows up on the POS, the receipt, and in inventory reports.</p>
       </div>
-      <a class="btn" routerLink="/catalog/products">← Back</a>
+      <div class="actions">
+        <a class="btn" routerLink="/catalog/products">← Back to list</a>
+      </div>
     </div>
 
-    <form class="form panel" [formGroup]="form" (ngSubmit)="submit()">
+    <form [formGroup]="form" (ngSubmit)="submit()" class="form-stack">
 
-      <h3 class="form-section">Identification</h3>
-      <div class="form-row">
-        <div class="field" [class.invalid]="invalid('sku')">
-          <label>SKU</label>
-          <input formControlName="sku" placeholder="BUR-001" />
-          @if (invalid('sku')) { <div class="field-error">{{ errorOf('sku') }}</div> }
+      <!-- ============ Identification ============ -->
+      <section class="form-card">
+        <div class="card-head">
+          <h2>🏷️ Identification</h2>
+          <span class="card-sub">SKU, name, classification, and the tax bucket it falls under.</span>
         </div>
-        <div class="field" [class.invalid]="invalid('name')">
-          <label>Name</label>
-          <input formControlName="name" />
-          @if (invalid('name')) { <div class="field-error">{{ errorOf('name') }}</div> }
-        </div>
-        <div class="field">
-          <label>Type</label>
-          <select formControlName="type">
-            <option [value]="0">Goods</option>
-            <option [value]="1">Service</option>
-            <option [value]="2">Combo</option>
-            <option [value]="3">Modifier</option>
-          </select>
-        </div>
-      </div>
+        <div class="card-body">
+          <div class="form-grid">
+            <div class="field" [class.invalid]="invalid('sku')">
+              <label>SKU</label>
+              <input formControlName="sku" placeholder="BUR-001" />
+              @if (invalid('sku')) { <div class="field-error">{{ errorOf('sku') }}</div> }
+            </div>
+            <div class="field span-2" [class.invalid]="invalid('name')">
+              <label>Name</label>
+              <input formControlName="name" placeholder="e.g. Cheese Burger" />
+              @if (invalid('name')) { <div class="field-error">{{ errorOf('name') }}</div> }
+            </div>
+            <div class="field">
+              <label>Type</label>
+              <select formControlName="type">
+                <option [value]="0">Goods</option>
+                <option [value]="1">Service</option>
+                <option [value]="2">Combo</option>
+                <option [value]="3">Modifier</option>
+              </select>
+            </div>
+          </div>
 
-      <div class="form-row">
-        <div class="field" [class.invalid]="invalid('categoryId')">
-          <label>Category</label>
-          <select formControlName="categoryId">
-            <option value="">— select —</option>
-            @for (c of categories(); track c.id) {
-              <option [value]="c.id">{{ c.name }}</option>
-            }
-          </select>
-          @if (invalid('categoryId')) { <div class="field-error">{{ errorOf('categoryId') }}</div> }
+          <div class="form-grid">
+            <div class="field" [class.invalid]="invalid('categoryId')">
+              <label>Category</label>
+              <select formControlName="categoryId">
+                <option value="">— select —</option>
+                @for (c of categories(); track c.id) {
+                  <option [value]="c.id">{{ c.name }}</option>
+                }
+              </select>
+              @if (invalid('categoryId')) { <div class="field-error">{{ errorOf('categoryId') }}</div> }
+            </div>
+            <div class="field" [class.invalid]="invalid('unitId')">
+              <label>Unit</label>
+              <select formControlName="unitId">
+                <option value="">— select —</option>
+                @for (u of units(); track u.id) {
+                  <option [value]="u.id">{{ u.code }} — {{ u.name }}</option>
+                }
+              </select>
+              @if (invalid('unitId')) { <div class="field-error">{{ errorOf('unitId') }}</div> }
+            </div>
+            <div class="field">
+              <label>Brand</label>
+              <select formControlName="brandId">
+                <option value="">— none —</option>
+                @for (b of brands(); track b.id) {
+                  <option [value]="b.id">{{ b.name }}</option>
+                }
+              </select>
+            </div>
+            <div class="field">
+              <label>Tax Rate</label>
+              <select formControlName="taxRateId">
+                <option value="">— default —</option>
+                @for (t of taxRates(); track t.id) {
+                  <option [value]="t.id">{{ t.name }} · {{ t.percentage }}%</option>
+                }
+              </select>
+            </div>
+          </div>
         </div>
-        <div class="field" [class.invalid]="invalid('unitId')">
-          <label>Unit</label>
-          <select formControlName="unitId">
-            <option value="">— select —</option>
-            @for (u of units(); track u.id) {
-              <option [value]="u.id">{{ u.code }} — {{ u.name }}</option>
-            }
-          </select>
-          @if (invalid('unitId')) { <div class="field-error">{{ errorOf('unitId') }}</div> }
-        </div>
-        <div class="field">
-          <label>Brand</label>
-          <select formControlName="brandId">
-            <option value="">— none —</option>
-            @for (b of brands(); track b.id) {
-              <option [value]="b.id">{{ b.name }}</option>
-            }
-          </select>
-        </div>
-        <div class="field">
-          <label>Tax Rate</label>
-          <select formControlName="taxRateId">
-            <option value="">— default —</option>
-            @for (t of taxRates(); track t.id) {
-              <option [value]="t.id">{{ t.name }} · {{ t.percentage }}%</option>
-            }
-          </select>
-        </div>
-      </div>
+      </section>
 
-      <h3 class="form-section">Pricing</h3>
-      <div class="form-row">
-        <div class="field" [class.invalid]="invalid('basePriceAmount')">
-          <label>Sale Price</label>
-          <input type="number" step="0.01" min="0" formControlName="basePriceAmount" />
-          @if (invalid('basePriceAmount')) { <div class="field-error">{{ errorOf('basePriceAmount') }}</div> }
+      <!-- ============ Pricing ============ -->
+      <section class="form-card">
+        <div class="card-head">
+          <h2>💲 Pricing</h2>
+          <span class="card-sub">Sale price hits the receipt; cost price drives profit reports and isn't shown to customers.</span>
         </div>
-        <div class="field" [class.invalid]="invalid('basePriceCurrency')">
-          <label>Currency</label>
-          <input formControlName="basePriceCurrency" maxlength="3" style="text-transform:uppercase;" />
-          @if (invalid('basePriceCurrency')) { <div class="field-error">{{ errorOf('basePriceCurrency') }}</div> }
+        <div class="card-body">
+          <div class="form-grid">
+            <div class="field" [class.invalid]="invalid('basePriceAmount')">
+              <label>Sale Price</label>
+              <input type="number" step="0.01" min="0" formControlName="basePriceAmount" />
+              @if (invalid('basePriceAmount')) { <div class="field-error">{{ errorOf('basePriceAmount') }}</div> }
+            </div>
+            <div class="field" [class.invalid]="invalid('basePriceCurrency')">
+              <label>Currency</label>
+              <input formControlName="basePriceCurrency" maxlength="3" style="text-transform:uppercase;" placeholder="PKR" />
+              @if (invalid('basePriceCurrency')) { <div class="field-error">{{ errorOf('basePriceCurrency') }}</div> }
+            </div>
+            <div class="field">
+              <label>Cost Price (optional)</label>
+              <input type="number" step="0.01" min="0" formControlName="costPriceAmount" placeholder="0.00" />
+            </div>
+            <div class="field">
+              <label>Cost Currency</label>
+              <input formControlName="costPriceCurrency" maxlength="3" style="text-transform:uppercase;" placeholder="PKR" />
+            </div>
+          </div>
         </div>
-        <div class="field">
-          <label>Cost Price (optional)</label>
-          <input type="number" step="0.01" min="0" formControlName="costPriceAmount" placeholder="0.00" />
-        </div>
-        <div class="field">
-          <label>Cost Currency</label>
-          <input formControlName="costPriceCurrency" maxlength="3" style="text-transform:uppercase;" placeholder="PKR" />
-        </div>
-      </div>
+      </section>
 
-      <h3 class="form-section">Inventory & Logistics</h3>
-      <div class="form-row">
-        <div class="field" [class.invalid]="invalid('barcode')">
-          <label>Barcode</label>
-          <input formControlName="barcode" />
+      <!-- ============ Inventory & Logistics ============ -->
+      <section class="form-card">
+        <div class="card-head">
+          <h2>📦 Inventory &amp; Logistics</h2>
+          <span class="card-sub">Barcode for scanning, HSN/tax code for invoices, reorder threshold for low-stock alerts.</span>
         </div>
-        <div class="field" [class.invalid]="invalid('hsnCode')">
-          <label>HSN / Tax Code</label>
-          <input formControlName="hsnCode" placeholder="for GST/VAT invoices" />
+        <div class="card-body">
+          <div class="form-grid">
+            <div class="field" [class.invalid]="invalid('barcode')">
+              <label>Barcode</label>
+              <input formControlName="barcode" placeholder="6291041500213" />
+            </div>
+            <div class="field" [class.invalid]="invalid('hsnCode')">
+              <label>HSN / Tax Code</label>
+              <input formControlName="hsnCode" placeholder="for GST/VAT invoices" />
+            </div>
+            <div class="field">
+              <label>Reorder Point</label>
+              <input type="number" step="0.01" min="0" formControlName="reorderPoint" placeholder="—" />
+            </div>
+            <div class="field">
+              <label>Weight</label>
+              <input type="number" step="0.001" min="0" formControlName="weight" placeholder="—" />
+            </div>
+          </div>
+
+          <div class="form-grid">
+            <div class="field span-full" [class.invalid]="invalid('imageUrl')">
+              <label>Image URL</label>
+              <input formControlName="imageUrl" placeholder="https://…" />
+            </div>
+          </div>
+
+          <div class="form-grid">
+            <div class="field span-full" [class.invalid]="invalid('description')">
+              <label>Description</label>
+              <textarea formControlName="description" rows="3" placeholder="Short menu description shown on the receipt and POS tile (optional)."></textarea>
+            </div>
+          </div>
         </div>
-        <div class="field">
-          <label>Reorder Point</label>
-          <input type="number" step="0.01" min="0" formControlName="reorderPoint" placeholder="—" />
+      </section>
+
+      <!-- ============ Flags ============ -->
+      <section class="form-card">
+        <div class="card-head">
+          <h2>🚩 Flags</h2>
+          <span class="card-sub">Behavior switches that change how this item flows through orders, purchases, and stock.</span>
         </div>
-        <div class="field">
-          <label>Weight</label>
-          <input type="number" step="0.001" min="0" formControlName="weight" placeholder="—" />
+        <div class="card-body">
+          <div class="flag-grid">
+            <label class="toggle-pill" [class.on]="form.controls.isTaxable.value">
+              <input type="checkbox" formControlName="isTaxable" />
+              <span class="dot"></span>
+              Taxable
+            </label>
+            <label class="toggle-pill" [class.on]="form.controls.isSold.value">
+              <input type="checkbox" formControlName="isSold" />
+              <span class="dot"></span>
+              Sold to customers
+            </label>
+            <label class="toggle-pill" [class.on]="form.controls.isPurchased.value">
+              <input type="checkbox" formControlName="isPurchased" />
+              <span class="dot"></span>
+              Purchased from suppliers
+            </label>
+            <label class="toggle-pill" [class.on]="form.controls.isStockTracked.value">
+              <input type="checkbox" formControlName="isStockTracked" />
+              <span class="dot"></span>
+              Stock-tracked
+            </label>
+          </div>
         </div>
-      </div>
+      </section>
 
-      <div class="field" [class.invalid]="invalid('imageUrl')">
-        <label>Image URL</label>
-        <input formControlName="imageUrl" placeholder="https://…" />
-      </div>
-
-      <div class="field" [class.invalid]="invalid('description')">
-        <label>Description</label>
-        <textarea formControlName="description" rows="3"></textarea>
-      </div>
-
-      <h3 class="form-section">Flags</h3>
-      <div class="form-row">
-        <label class="toggle">
-          <input type="checkbox" formControlName="isTaxable" />
-          <span>Taxable</span>
-        </label>
-        <label class="toggle">
-          <input type="checkbox" formControlName="isSold" />
-          <span>Sold to customers</span>
-        </label>
-        <label class="toggle">
-          <input type="checkbox" formControlName="isPurchased" />
-          <span>Purchased from suppliers</span>
-        </label>
-        <label class="toggle">
-          <input type="checkbox" formControlName="isStockTracked" />
-          <span>Stock-tracked</span>
-        </label>
-      </div>
-
-      <div class="form-actions">
+      <!-- ============ Sticky action bar ============ -->
+      <div class="sticky-actions">
         <a class="btn" routerLink="/catalog/products">Cancel</a>
-        <button type="submit" class="btn btn-primary" [disabled]="saving()">
-          {{ saving() ? 'Saving…' : (isEdit() ? 'Save changes' : 'Create product') }}
+        <button type="submit" class="btn btn-primary btn-lg" [disabled]="saving()">
+          {{ saving() ? 'Saving…' : (isEdit() ? '✓ Save Changes' : '+ Create Product') }}
         </button>
       </div>
     </form>
 
     @if (isEdit()) {
-      <div class="panel" style="margin-top:1rem;">
-        <h2 style="margin:0 0 0.25rem; font-size:1rem;">Modifier groups</h2>
-        <p class="muted" style="margin:0 0 0.75rem;">
-          Pick which modifier groups customers can choose from when ordering this item.
-        </p>
+      <section class="form-card" style="max-width:1080px; margin-top:0.5rem;">
+        <div class="card-head">
+          <h2>✨ Modifier Groups</h2>
+          <span class="card-sub">Pick which modifier groups customers can choose from when ordering this item.</span>
+        </div>
+        <div class="card-body">
 
         @if (loadingGroups()) {
           <span class="muted">Loading…</span>
@@ -215,37 +259,38 @@ import { NotificationService } from '../../../core/notifications/notification.se
             </button>
           </div>
         }
-      </div>
+        </div>
+      </section>
     }
   `,
   styles: [`
-    .form-section {
-      margin: 1rem 0 0.5rem;
-      font-size: 0.85rem;
-      letter-spacing: 0.04em;
-      text-transform: uppercase;
-      color: #6b7280;
-      font-weight: 600;
-      border-top: 1px solid #f3f4f6;
-      padding-top: 0.75rem;
+    /* Flag-row: a wrapping row of toggle-pills (defined in global styles.scss). */
+    .flag-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.55rem;
     }
-    .form-section:first-child { border-top: 0; padding-top: 0; }
+
+    /* Modifier-groups picker still lives outside the main form-card; restyle it
+       to feel consistent with the new card system. */
     .modgroup-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-      gap: 0.5rem;
+      gap: 0.55rem;
     }
     .modgroup-row {
       display: flex;
       gap: 0.6rem;
       align-items: flex-start;
-      padding: 0.5rem 0.75rem;
-      border: 1px solid #e5e7eb;
-      border-radius: 6px;
+      padding: 0.65rem 0.85rem;
+      background: var(--c-surface);
+      border: 1px solid var(--c-border);
+      border-radius: var(--radius-md);
       cursor: pointer;
-      &:hover { background: #f9fafb; }
-      input { accent-color: #3b82f6; margin-top: 0.2rem; }
-      small { display: block; margin-top: 0.15rem; }
+      transition: all var(--t-fast);
+      &:hover { background: var(--c-surface-hover); border-color: var(--c-border-strong); }
+      input { accent-color: var(--c-primary); margin-top: 0.2rem; }
+      small { display: block; margin-top: 0.15rem; color: var(--c-text-subtle); }
     }
   `]
 })
