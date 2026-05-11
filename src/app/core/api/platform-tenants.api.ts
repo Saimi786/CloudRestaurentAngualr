@@ -42,4 +42,80 @@ export class PlatformTenantsApi {
   activate(id: string): Observable<void> {
     return this.http.post<void>(`${this.base}/${id}/activate`, {});
   }
+
+  /** Cross-tenant branch list for the Manage Business page. */
+  branches(tenantId: string): Observable<PlatformBranchDto[]> {
+    return this.http.get<PlatformBranchDto[]>(`${this.base}/${tenantId}/branches`);
+  }
+
+  /** Full branch + tenant + owner detail for Manage Location. */
+  branchDetail(branchId: string): Observable<PlatformBranchDetailDto> {
+    return this.http.get<PlatformBranchDetailDto>(
+      `${environment.apiBaseUrl}/platform/branches/${branchId}`);
+  }
+
+  /** Users assigned to a specific branch (cross-tenant). */
+  branchUsers(branchId: string): Observable<UserSummaryLike[]> {
+    return this.http.get<UserSummaryLike[]>(
+      `${environment.apiBaseUrl}/platform/branches/${branchId}/users`);
+  }
+
+  /** Cross-tenant password reset for any user (SuperAdmin only). */
+  resetUserPassword(userId: string, newPassword: string): Observable<void> {
+    return this.http.post<void>(
+      `${environment.apiBaseUrl}/platform/users/${userId}/reset-password`,
+      { newPassword });
+  }
+}
+
+export interface PlatformBranchDto {
+  id: string;
+  companyId: string;
+  companyName: string;
+  name: string;
+  code: string;
+  phoneNumber: string | null;
+  city: string | null;
+  state: string | null;
+  country: string | null;
+  addressLine1: string | null;
+  timeZone: string;
+  isActive: boolean;
+}
+
+export interface PlatformBranchDetailDto {
+  tenantId: string;
+  tenantName: string;
+  tenantBusinessType: number;
+  tenantPlan: number;
+  tenantLogoUrl: string | null;
+  ownerEmail: string | null;
+  companyId: string;
+  companyName: string;
+  companyLegalName: string;
+  branchId: string;
+  branchName: string;
+  branchCode: string;
+  branchPhone: string | null;
+  addressLine1: string | null;
+  addressLine2: string | null;
+  city: string | null;
+  state: string | null;
+  country: string | null;
+  postalCode: string | null;
+  timeZone: string;
+  branchIsActive: boolean;
+}
+
+/** Mirrors UserSummary on the API — kept loose to avoid coupling here. */
+export interface UserSummaryLike {
+  id: string;
+  email: string;
+  fullName: string;
+  isActive: boolean;
+  createdAt: string;
+  lastLoginAt: string | null;
+  roles: string[];
+  branchIds: string[];
+  maxDiscountPercent: number | null;
 }

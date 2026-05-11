@@ -80,6 +80,12 @@
       </div>
       <div class="topbar-user">
         @if (auth.user(); as user) {
+          @if (auth.hasRole('SuperAdmin')) {
+            <a class="superadmin-btn" routerLink="/platform" routerLinkActive="active" [routerLinkActiveOptions]="{exact:false}">
+              <span class="sa-ico">⚡</span>
+              <span>SuperAdmin</span>
+            </a>
+          }
           <div class="user-chip">
             <div class="avatar">{{ initials(user.fullName) }}</div>
             <span class="user-name">{{ user.fullName }}</span>

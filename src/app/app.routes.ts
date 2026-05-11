@@ -330,14 +330,37 @@ export const routes: Routes = [
           import('./features/settings/business-settings.component').then(m => m.BusinessSettingsComponent)
       },
       {
-        path: 'platform/tenants',
+        path: 'platform',
         loadComponent: () =>
-          import('./features/platform/platform-tenants-list.component').then(m => m.PlatformTenantsListComponent)
-      },
-      {
-        path: 'platform/tenants/:id',
-        loadComponent: () =>
-          import('./features/platform/platform-tenant-edit.component').then(m => m.PlatformTenantEditComponent)
+          import('./features/platform/platform-shell.component').then(m => m.PlatformShellComponent),
+        children: [
+          {
+            path: '',
+            pathMatch: 'full',
+            loadComponent: () =>
+              import('./features/platform/platform-dashboard.component').then(m => m.PlatformDashboardComponent)
+          },
+          {
+            path: 'tenants',
+            loadComponent: () =>
+              import('./features/platform/platform-tenants-list.component').then(m => m.PlatformTenantsListComponent)
+          },
+          {
+            path: 'tenants/:id/manage',
+            loadComponent: () =>
+              import('./features/platform/manage-business.component').then(m => m.ManageBusinessComponent)
+          },
+          {
+            path: 'tenants/:tenantId/branches/:branchId',
+            loadComponent: () =>
+              import('./features/platform/manage-location.component').then(m => m.ManageLocationComponent)
+          },
+          {
+            path: 'tenants/:id',
+            loadComponent: () =>
+              import('./features/platform/platform-tenant-edit.component').then(m => m.PlatformTenantEditComponent)
+          }
+        ]
       }
     ]
   },

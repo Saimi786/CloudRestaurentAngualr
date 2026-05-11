@@ -32,7 +32,13 @@ export class LoginComponent {
     this.error.set(null);
 
     this.auth.login(this.form.getRawValue()).subscribe({
-      next: () => this.router.navigate(['/dashboard']),
+      next: () => {
+        // SuperAdmin lands on the platform console (their natural home); everyone else
+        // goes to the tenant dashboard. The top-bar SuperAdmin button still lets them
+        // jump back to the platform area whenever they want.
+        const landing = this.auth.hasRole('SuperAdmin') ? '/platform' : '/dashboard';
+        this.router.navigate([landing]);
+      },
       error: err => {
         this.loading.set(false);
         this.error.set(err.status === 401

@@ -103,6 +103,10 @@ import { NotificationService } from '../../core/notifications/notification.servi
                 }
               </td>
               <td class="actions">
+                <a class="btn btn-sm btn-accent" [routerLink]="['/platform/tenants', t.id, 'manage']"
+                   title="Manage this business's locations and users">
+                  → Manage
+                </a>
                 <a class="btn btn-sm" [routerLink]="['/platform/tenants', t.id]">Edit</a>
                 @if (t.isActive) {
                   <button class="btn btn-sm btn-danger" (click)="toggle(t, false)">Deactivate</button>
