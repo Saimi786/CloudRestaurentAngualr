@@ -13,9 +13,14 @@
 
       <div class="nav-section">Setup</div>
       <a routerLink="/dashboard" routerLinkActive="active"><span class="ico">📊</span>Dashboard</a>
-      <a routerLink="/tenant" routerLinkActive="active"><span class="ico">🏢</span>Tenant</a>
-      <a routerLink="/companies" routerLinkActive="active"><span class="ico">🏬</span>Companies</a>
-      <a routerLink="/branches" routerLinkActive="active"><span class="ico">📍</span>Branches</a>
+      @if (auth.hasRole('SuperAdmin')) {
+        <!-- Tenant / Companies / Branches are platform-structural — only the
+             SuperAdmin can navigate to them. Tenant admins manage day-to-day
+             operations only (catalog, POS, inventory, etc). -->
+        <a routerLink="/tenant" routerLinkActive="active"><span class="ico">🏢</span>Tenant</a>
+        <a routerLink="/companies" routerLinkActive="active"><span class="ico">🏬</span>Companies</a>
+        <a routerLink="/branches" routerLinkActive="active"><span class="ico">📍</span>Branches</a>
+      }
 
       <div class="nav-section">Catalog</div>
       <a routerLink="/catalog/products" routerLinkActive="active"><span class="ico">📦</span>Products</a>
