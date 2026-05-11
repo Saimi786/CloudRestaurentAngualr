@@ -12,6 +12,17 @@ import { NotificationService } from '../../core/notifications/notification.servi
   standalone: true,
   imports: [RouterLink, FormsModule],
   template: `
+    @if (!auth.hasRole('SuperAdmin')) {
+      <div class="readonly-banner">
+        <span class="icon">🔒</span>
+        <div>
+          <strong>Read-only view.</strong>
+          Only the platform SuperAdmin can create or edit companies. Contact your account
+          manager to request changes.
+        </div>
+      </div>
+    }
+
     <div class="page-header">
       <div>
         <h1>Companies</h1>
@@ -22,7 +33,7 @@ import { NotificationService } from '../../core/notifications/notification.servi
           <input type="checkbox" [(ngModel)]="includeInactive" (ngModelChange)="reload()" />
           Show inactive
         </label>
-        @if (auth.hasRole('TenantAdmin')) {
+        @if (auth.hasRole('SuperAdmin')) {
           <a class="btn btn-primary" routerLink="/companies/new">+ New Company</a>
         }
       </div>
@@ -57,8 +68,8 @@ import { NotificationService } from '../../core/notifications/notification.servi
                 </span>
               </td>
               <td class="actions">
-                <a class="btn btn-sm" [routerLink]="['/companies', c.id]">Edit</a>
-                @if (auth.hasRole('TenantAdmin') && c.isActive) {
+                <a class="btn btn-sm" [routerLink]="['/companies', c.id]">{{ auth.hasRole('SuperAdmin') ? 'Edit' : 'View' }}</a>
+                @if (auth.hasRole('SuperAdmin') && c.isActive) {
                   <button class="btn btn-sm btn-danger" (click)="deactivate(c)">Deactivate</button>
                 }
               </td>
@@ -67,7 +78,21 @@ import { NotificationService } from '../../core/notifications/notification.servi
         }
       </tbody>
     </table>
-  `
+  `,
+  styles: [`
+    .readonly-banner {
+      display: flex; align-items: center; gap: 0.75rem;
+      background: var(--c-info-soft);
+      border: 1px solid #bae6fd;
+      color: var(--c-info-fg);
+      padding: 0.75rem 1rem;
+      border-radius: var(--radius-lg);
+      margin-bottom: 1rem;
+      font-size: 0.875rem;
+      .icon { font-size: 1.3rem; }
+      strong { display: block; margin-bottom: 1px; }
+    }
+  `]
 })
 export class CompaniesListComponent {
   private readonly api = inject(CompaniesApi);

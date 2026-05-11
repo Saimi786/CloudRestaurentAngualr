@@ -4,6 +4,7 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { BranchesApi } from '../../core/api/branches.api';
 import { CompaniesApi } from '../../core/api/companies.api';
 import { TenantsApi } from '../../core/api/tenants.api';
+import { AuthService } from '../../core/auth/auth.service';
 import { applyServerErrors, userMessage } from '../../core/errors/problem-details.helper';
 import { CompanyDto, LocationDto, ReceiptTemplate, TenantDto } from '../../core/models';
 import { NotificationService } from '../../core/notifications/notification.service';
@@ -16,11 +17,18 @@ import { environment } from '../../../environments/environment';
   template: `
     <div class="page-header">
       <div>
-        <h1>{{ isEdit() ? 'Edit Branch' : 'New Branch' }}</h1>
+        <h1>{{ readonly() ? 'Branch Details' : (isEdit() ? 'Edit Branch' : 'New Branch') }}</h1>
         <p class="muted">Outlet details and location.</p>
       </div>
       <a class="btn" routerLink="/branches">← Back</a>
     </div>
+
+    @if (readonly()) {
+      <div class="readonly-banner">
+        <span class="icon">🔒</span>
+        <div>Read-only view. Only the platform SuperAdmin can edit branches.</div>
+      </div>
+    }
 
     <form class="form panel" [formGroup]="form" (ngSubmit)="submit()">
       <div class="form-row">
@@ -120,13 +128,28 @@ import { environment } from '../../../environments/environment';
       }
 
       <div class="form-actions">
-        <a class="btn" routerLink="/branches">Cancel</a>
-        <button type="submit" class="btn btn-primary" [disabled]="saving()">
-          {{ saving() ? 'Saving…' : (isEdit() ? 'Save changes' : 'Create branch') }}
-        </button>
+        <a class="btn" routerLink="/branches">{{ readonly() ? 'Back' : 'Cancel' }}</a>
+        @if (!readonly()) {
+          <button type="submit" class="btn btn-primary" [disabled]="saving()">
+            {{ saving() ? 'Saving…' : (isEdit() ? 'Save changes' : 'Create branch') }}
+          </button>
+        }
       </div>
     </form>
-  `
+  `,
+  styles: [`
+    .readonly-banner {
+      display: flex; align-items: center; gap: 0.75rem;
+      background: var(--c-info-soft);
+      border: 1px solid #bae6fd;
+      color: var(--c-info-fg);
+      padding: 0.75rem 1rem;
+      border-radius: var(--radius-lg);
+      margin-bottom: 1rem;
+      font-size: 0.875rem;
+      .icon { font-size: 1.3rem; }
+    }
+  `]
 })
 export class BranchEditComponent {
   private readonly fb = inject(FormBuilder);
@@ -136,9 +159,12 @@ export class BranchEditComponent {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly notify = inject(NotificationService);
+  private readonly auth = inject(AuthService);
 
   protected readonly id = signal<string | null>(null);
   protected readonly isEdit = computed(() => this.id() !== null);
+  /** Non-SuperAdmin users see this page in read-only mode — writes are gated server-side. */
+  protected readonly readonly = computed(() => !this.auth.hasRole('SuperAdmin'));
   protected readonly saving = signal(false);
   protected readonly companies = signal<CompanyDto[]>([]);
   protected readonly tenant = signal<TenantDto | null>(null);
@@ -174,6 +200,17 @@ export class BranchEditComponent {
 
   constructor() {
     this.companiesApi.list().subscribe(list => this.companies.set(list));
+
+    // Block non-SuperAdmin users from the 'new' route — POST will 403 server-side
+    // anyway, but we want to fail fast instead of letting them fill the form.
+    if (this.readonly() && this.route.snapshot.paramMap.get('id') === 'new') {
+      this.notify.error('Only SuperAdmin can create branches.');
+      this.router.navigate(['/branches']);
+      return;
+    }
+    if (this.readonly()) {
+      this.form.disable({ emitEvent: false });
+    }
 
     const routeId = this.route.snapshot.paramMap.get('id');
     if (routeId && routeId !== 'new') {

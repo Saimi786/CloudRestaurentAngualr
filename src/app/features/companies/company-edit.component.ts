@@ -2,6 +2,7 @@ import { Component, computed, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { CompaniesApi } from '../../core/api/companies.api';
+import { AuthService } from '../../core/auth/auth.service';
 import { applyServerErrors, userMessage } from '../../core/errors/problem-details.helper';
 import { NotificationService } from '../../core/notifications/notification.service';
 
@@ -12,11 +13,18 @@ import { NotificationService } from '../../core/notifications/notification.servi
   template: `
     <div class="page-header">
       <div>
-        <h1>{{ isEdit() ? 'Edit Company' : 'New Company' }}</h1>
+        <h1>{{ readonly() ? 'Company Details' : (isEdit() ? 'Edit Company' : 'New Company') }}</h1>
         <p class="muted">Brand / legal entity details.</p>
       </div>
       <a class="btn" routerLink="/companies">← Back</a>
     </div>
+
+    @if (readonly()) {
+      <div class="readonly-banner">
+        <span class="icon">🔒</span>
+        <div>Read-only view. Only the platform SuperAdmin can edit companies.</div>
+      </div>
+    }
 
     <form class="form panel" [formGroup]="form" (ngSubmit)="submit()">
       <div class="form-row">
@@ -46,13 +54,28 @@ import { NotificationService } from '../../core/notifications/notification.servi
       </div>
 
       <div class="form-actions">
-        <a class="btn" routerLink="/companies">Cancel</a>
-        <button type="submit" class="btn btn-primary" [disabled]="saving()">
-          {{ saving() ? 'Saving…' : (isEdit() ? 'Save changes' : 'Create company') }}
-        </button>
+        <a class="btn" routerLink="/companies">{{ readonly() ? 'Back' : 'Cancel' }}</a>
+        @if (!readonly()) {
+          <button type="submit" class="btn btn-primary" [disabled]="saving()">
+            {{ saving() ? 'Saving…' : (isEdit() ? 'Save changes' : 'Create company') }}
+          </button>
+        }
       </div>
     </form>
-  `
+  `,
+  styles: [`
+    .readonly-banner {
+      display: flex; align-items: center; gap: 0.75rem;
+      background: var(--c-info-soft);
+      border: 1px solid #bae6fd;
+      color: var(--c-info-fg);
+      padding: 0.75rem 1rem;
+      border-radius: var(--radius-lg);
+      margin-bottom: 1rem;
+      font-size: 0.875rem;
+      .icon { font-size: 1.3rem; }
+    }
+  `]
 })
 export class CompanyEditComponent {
   private readonly fb = inject(FormBuilder);
@@ -60,9 +83,11 @@ export class CompanyEditComponent {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly notify = inject(NotificationService);
+  private readonly auth = inject(AuthService);
 
   protected readonly id = signal<string | null>(null);
   protected readonly isEdit = computed(() => this.id() !== null);
+  protected readonly readonly = computed(() => !this.auth.hasRole('SuperAdmin'));
   protected readonly saving = signal(false);
 
   protected readonly form = this.fb.nonNullable.group({
@@ -73,6 +98,15 @@ export class CompanyEditComponent {
   });
 
   constructor() {
+    if (this.readonly() && this.route.snapshot.paramMap.get('id') === 'new') {
+      this.notify.error('Only SuperAdmin can create companies.');
+      this.router.navigate(['/companies']);
+      return;
+    }
+    if (this.readonly()) {
+      this.form.disable({ emitEvent: false });
+    }
+
     const routeId = this.route.snapshot.paramMap.get('id');
     if (routeId && routeId !== 'new') {
       this.id.set(routeId);

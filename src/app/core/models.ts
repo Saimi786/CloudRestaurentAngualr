@@ -40,6 +40,8 @@ export interface CreateCompanyRequest {
   legalName: string;
   defaultCurrency: string;
   taxRegistrationNumber: string | null;
+  /** SuperAdmin-only: create in this tenant instead of the caller's own. */
+  tenantId?: string;
 }
 
 export interface UpdateCompanyRequest extends CreateCompanyRequest {
@@ -76,6 +78,8 @@ export interface CreateBranchRequest {
   code: string;
   phoneNumber: string | null;
   location: LocationDto;
+  /** SuperAdmin-only: create in this tenant instead of the caller's own. */
+  tenantId?: string;
 }
 
 export interface UpdateBranchRequest extends Omit<CreateBranchRequest, 'companyId'> {
