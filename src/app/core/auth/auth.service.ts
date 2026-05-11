@@ -40,6 +40,21 @@ export class AuthService {
     return this._state()?.roles.includes(role) ?? false;
   }
 
+  /** True when the user has unrestricted branch access (SuperAdmin / TenantAdmin). */
+  canAccessAllBranches(): boolean {
+    const roles = this._state()?.roles ?? [];
+    return roles.includes('SuperAdmin') || roles.includes('TenantAdmin');
+  }
+
+  /** Branches the user is explicitly assigned to. Empty for privileged users. */
+  branchIds(): string[] {
+    return this._state()?.branchIds ?? [];
+  }
+
+  maxDiscountPercent(): number | null {
+    return this._state()?.maxDiscountPercent ?? null;
+  }
+
   private persist(res: LoginResponse): void {
     const state: AuthState = {
       accessToken: res.accessToken,
@@ -48,7 +63,9 @@ export class AuthService {
       email: res.email,
       fullName: res.fullName,
       tenantId: res.tenantId,
-      roles: res.roles
+      roles: res.roles,
+      branchIds: res.branchIds ?? [],
+      maxDiscountPercent: res.maxDiscountPercent ?? null
     };
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
     this._state.set(state);

@@ -11,6 +11,8 @@ export interface LoginResponse {
   fullName: string;
   tenantId: string;
   roles: string[];
+  branchIds: string[];
+  maxDiscountPercent: number | null;
 }
 
 export interface AuthState {
@@ -21,4 +23,6 @@ export interface AuthState {
   fullName: string;
   tenantId: string;
   roles: string[];
+  branchIds: string[];
+  maxDiscountPercent: number | null;
 }

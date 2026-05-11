@@ -1,60 +1,73 @@
 <div class="shell">
   <aside class="sidebar">
-    <div class="brand">CloudRestaurent</div>
+    <div class="brand">
+      <div class="brand-mark">CR</div>
+      <div class="brand-info">
+        <span class="brand-text">CloudRestaurent</span>
+        <span class="brand-sub">Restaurant Suite</span>
+      </div>
+    </div>
     <nav>
-      <a routerLink="/pos" routerLinkActive="active" class="primary-link">POS</a>
-      <a routerLink="/kitchen" routerLinkActive="active" class="primary-link">Kitchen Display</a>
+      <a routerLink="/pos" routerLinkActive="active"><span class="ico">🛒</span>POS</a>
+      <a routerLink="/kitchen" routerLinkActive="active"><span class="ico">🍳</span>Kitchen Display</a>
 
       <div class="nav-section">Setup</div>
-      <a routerLink="/dashboard" routerLinkActive="active">Dashboard</a>
-      <a routerLink="/tenant" routerLinkActive="active">Tenant</a>
-      <a routerLink="/companies" routerLinkActive="active">Companies</a>
-      <a routerLink="/branches" routerLinkActive="active">Branches</a>
+      <a routerLink="/dashboard" routerLinkActive="active"><span class="ico">📊</span>Dashboard</a>
+      <a routerLink="/tenant" routerLinkActive="active"><span class="ico">🏢</span>Tenant</a>
+      <a routerLink="/companies" routerLinkActive="active"><span class="ico">🏬</span>Companies</a>
+      <a routerLink="/branches" routerLinkActive="active"><span class="ico">📍</span>Branches</a>
 
       <div class="nav-section">Catalog</div>
-      <a routerLink="/catalog/products" routerLinkActive="active">Products</a>
-      <a routerLink="/catalog/categories" routerLinkActive="active">Categories</a>
-      <a routerLink="/catalog/unit-groups" routerLinkActive="active">Unit Groups</a>
-      <a routerLink="/catalog/units" routerLinkActive="active">Units</a>
-      <a routerLink="/catalog/recipes" routerLinkActive="active">Recipes</a>
-      <a routerLink="/catalog/modifier-groups" routerLinkActive="active">Modifier Groups</a>
-      <a routerLink="/catalog/brands" routerLinkActive="active">Brands</a>
-      <a routerLink="/catalog/price-rules" routerLinkActive="active">Price Rules</a>
-      <a routerLink="/catalog/mix-match" routerLinkActive="active">Mix &amp; Match</a>
-      <a routerLink="/catalog/86-list" routerLinkActive="active">86 List</a>
+      <a routerLink="/catalog/products" routerLinkActive="active"><span class="ico">📦</span>Products</a>
+      <a routerLink="/catalog/categories" routerLinkActive="active"><span class="ico">🏷️</span>Categories</a>
+      <a routerLink="/catalog/unit-groups" routerLinkActive="active"><span class="ico">📐</span>Unit Groups</a>
+      <a routerLink="/catalog/units" routerLinkActive="active"><span class="ico">⚖️</span>Units</a>
+      <a routerLink="/catalog/recipes" routerLinkActive="active"><span class="ico">📜</span>Recipes</a>
+      <a routerLink="/catalog/modifier-groups" routerLinkActive="active"><span class="ico">✨</span>Modifier Groups</a>
+      <a routerLink="/catalog/brands" routerLinkActive="active"><span class="ico">⭐</span>Brands</a>
+      <a routerLink="/catalog/price-rules" routerLinkActive="active"><span class="ico">💲</span>Price Rules</a>
+      <a routerLink="/catalog/mix-match" routerLinkActive="active"><span class="ico">🎁</span>Mix &amp; Match</a>
+      <a routerLink="/catalog/86-list" routerLinkActive="active"><span class="ico">🚫</span>86 List</a>
 
       <div class="nav-section">Restaurant</div>
-      <a routerLink="/restaurant/floor-plans" routerLinkActive="active">Floor Plans</a>
-      <a routerLink="/restaurant/tables" routerLinkActive="active">Tables</a>
-      <a routerLink="/restaurant/kitchen-stations" routerLinkActive="active">Kitchen Stations</a>
+      <a routerLink="/restaurant/floor-plans" routerLinkActive="active"><span class="ico">🗺️</span>Floor Plans</a>
+      <a routerLink="/restaurant/tables" routerLinkActive="active"><span class="ico">🍽️</span>Tables</a>
+      <a routerLink="/restaurant/kitchen-stations" routerLinkActive="active"><span class="ico">🔥</span>Kitchen Stations</a>
 
       <div class="nav-section">CRM</div>
-      <a routerLink="/customers" routerLinkActive="active">Customers</a>
-      <a routerLink="/customer-groups" routerLinkActive="active">Customer Groups</a>
-      <a routerLink="/suppliers" routerLinkActive="active">Suppliers</a>
+      <a routerLink="/customers" routerLinkActive="active"><span class="ico">👥</span>Customers</a>
+      <a routerLink="/customer-groups" routerLinkActive="active"><span class="ico">👨‍👩‍👦</span>Customer Groups</a>
+      <a routerLink="/suppliers" routerLinkActive="active"><span class="ico">🚚</span>Suppliers</a>
 
       <div class="nav-section">Inventory</div>
-      <a routerLink="/inventory/balances" routerLinkActive="active">Stock Balances</a>
-      <a routerLink="/inventory/movements" routerLinkActive="active">Movements</a>
-      <a routerLink="/inventory/transfer" routerLinkActive="active">Transfer Stock</a>
-      <a routerLink="/inventory/waste" routerLinkActive="active">Waste Log</a>
+      <a routerLink="/inventory/balances" routerLinkActive="active"><span class="ico">📦</span>Stock Balances</a>
+      <a routerLink="/inventory/movements" routerLinkActive="active"><span class="ico">🔄</span>Movements</a>
+      <a routerLink="/inventory/transfer" routerLinkActive="active"><span class="ico">↔️</span>Transfer Stock</a>
+      <a routerLink="/inventory/waste" routerLinkActive="active"><span class="ico">🗑️</span>Waste Log</a>
 
       <div class="nav-section">Purchases</div>
-      <a routerLink="/purchase-orders" routerLinkActive="active">Purchase Orders</a>
-      <a routerLink="/supplier-bills" routerLinkActive="active">Supplier Bills</a>
+      <a routerLink="/purchase-orders" routerLinkActive="active"><span class="ico">📥</span>Purchase Orders</a>
+      <a routerLink="/supplier-bills" routerLinkActive="active"><span class="ico">🧾</span>Supplier Bills</a>
 
       <div class="nav-section">Cash</div>
-      <a routerLink="/cash-registers" routerLinkActive="active">Registers</a>
-      <a routerLink="/cash-registers/shifts" routerLinkActive="active">Shifts</a>
-      <a routerLink="/expenses" routerLinkActive="active">Expenses</a>
+      <a routerLink="/cash-registers" routerLinkActive="active"><span class="ico">💰</span>Registers</a>
+      <a routerLink="/cash-registers/shifts" routerLinkActive="active"><span class="ico">🕐</span>Shifts</a>
+      <a routerLink="/expenses" routerLinkActive="active"><span class="ico">💸</span>Expenses</a>
 
       <div class="nav-section">Reports</div>
-      <a routerLink="/reports" routerLinkActive="active">Reports</a>
+      <a routerLink="/reports" routerLinkActive="active"><span class="ico">📈</span>Reports</a>
 
       <div class="nav-section">Admin</div>
-      <a routerLink="/users" routerLinkActive="active">Users</a>
-      <a routerLink="/tax-rates" routerLinkActive="active">Tax Rates</a>
-      <a routerLink="/imports" routerLinkActive="active">CSV Import</a>
+      <a routerLink="/settings" routerLinkActive="active"><span class="ico">⚙️</span>Business Settings</a>
+      <a routerLink="/users" routerLinkActive="active"><span class="ico">👤</span>Users</a>
+      <a routerLink="/roles" routerLinkActive="active"><span class="ico">🔐</span>Roles &amp; Permissions</a>
+      <a routerLink="/tax-rates" routerLinkActive="active"><span class="ico">🧮</span>Tax Rates</a>
+      <a routerLink="/imports" routerLinkActive="active"><span class="ico">📤</span>CSV Import</a>
+
+      @if (auth.hasRole('SuperAdmin')) {
+        <div class="nav-section platform">⚡ Platform</div>
+        <a routerLink="/platform/tenants" routerLinkActive="active"><span class="ico">🏢</span>All Tenants</a>
+      }
     </nav>
   </aside>
 
@@ -62,12 +75,15 @@
     <header class="topbar">
       <div class="topbar-title">
         @if (auth.user(); as user) {
-          <span class="muted">Tenant {{ user.tenantId.substring(0, 8) }}</span>
+          <span class="tenant-chip">Tenant · {{ user.tenantId.substring(0, 8) }}</span>
         }
       </div>
       <div class="topbar-user">
         @if (auth.user(); as user) {
-          <span>{{ user.fullName }}</span>
+          <div class="user-chip">
+            <div class="avatar">{{ initials(user.fullName) }}</div>
+            <span class="user-name">{{ user.fullName }}</span>
+          </div>
           <button class="logout" (click)="logout()">Sign out</button>
         }
       </div>

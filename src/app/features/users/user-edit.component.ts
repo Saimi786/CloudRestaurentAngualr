@@ -1,10 +1,11 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { BranchesApi } from '../../core/api/branches.api';
 import { RolesApi } from '../../core/api/roles.api';
 import { UsersApi } from '../../core/api/users.api';
 import { applyServerErrors, userMessage } from '../../core/errors/problem-details.helper';
-import { RoleDto, UserDto } from '../../core/models';
+import { BranchDto, RoleDto, UserDto } from '../../core/models';
 import { NotificationService } from '../../core/notifications/notification.service';
 
 @Component({
@@ -74,6 +75,36 @@ import { NotificationService } from '../../core/notifications/notification.servi
         <div class="field-error">{{ form.controls.roles.errors?.['server'] }}</div>
       }
 
+      <div class="fieldset-title">Branches</div>
+      <p class="muted" style="margin:0 0 0.5rem; font-size:0.85rem;">
+        Restricts this user to the selected branches. Leave empty for a tenant-wide admin who can see every branch.
+      </p>
+      <div class="roles-grid">
+        @if (loadingBranches()) {
+          <span class="muted">Loading branches…</span>
+        } @else if (availableBranches().length === 0) {
+          <span class="muted">No branches available.</span>
+        } @else {
+          @for (b of availableBranches(); track b.id) {
+            <label class="role-checkbox">
+              <input type="checkbox"
+                     [checked]="hasBranch(b.id)"
+                     (change)="toggleBranch(b.id, $any($event.target).checked)" />
+              <span>{{ b.name }} <small class="muted">({{ b.code }})</small></span>
+            </label>
+          }
+        }
+      </div>
+
+      <div class="form-row" style="margin-top:0.75rem;">
+        <div class="field" [class.invalid]="invalid('maxDiscountPercent')">
+          <label>Max discount % (POS)</label>
+          <input type="number" min="0" max="100" step="0.01" formControlName="maxDiscountPercent" placeholder="unlimited" />
+          <small class="muted">Cap on the discount this user can apply at the POS. Leave blank for managers/admins.</small>
+          @if (invalid('maxDiscountPercent')) { <div class="field-error">{{ errorOf('maxDiscountPercent') }}</div> }
+        </div>
+      </div>
+
       <div class="form-actions">
         <a class="btn" routerLink="/users">Cancel</a>
         <button type="submit" class="btn btn-primary" [disabled]="saving()">
@@ -131,6 +162,7 @@ export class UserEditComponent {
   private readonly fb = inject(FormBuilder);
   private readonly api = inject(UsersApi);
   private readonly rolesApi = inject(RolesApi);
+  private readonly branchesApi = inject(BranchesApi);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly notify = inject(NotificationService);
@@ -141,13 +173,17 @@ export class UserEditComponent {
   protected readonly resetSaving = signal(false);
   protected readonly availableRoles = signal<RoleDto[]>([]);
   protected readonly loadingRoles = signal(true);
+  protected readonly availableBranches = signal<BranchDto[]>([]);
+  protected readonly loadingBranches = signal(true);
 
   protected readonly form = this.fb.nonNullable.group({
     email: ['', [Validators.required, Validators.email]],
     fullName: ['', [Validators.required, Validators.maxLength(200)]],
     password: ['', []], // validators applied dynamically when not edit
     isActive: [true],
-    roles: this.fb.nonNullable.control<string[]>([])
+    roles: this.fb.nonNullable.control<string[]>([]),
+    branchIds: this.fb.nonNullable.control<string[]>([]),
+    maxDiscountPercent: this.fb.control<number | null>(null, [Validators.min(0), Validators.max(100)])
   });
 
   protected readonly resetForm = this.fb.nonNullable.group({
@@ -158,6 +194,10 @@ export class UserEditComponent {
     this.rolesApi.list().subscribe({
       next: list => { this.availableRoles.set(list); this.loadingRoles.set(false); },
       error: err => { this.loadingRoles.set(false); this.notify.error(userMessage(err)); }
+    });
+    this.branchesApi.list(undefined, false).subscribe({
+      next: list => { this.availableBranches.set(list); this.loadingBranches.set(false); },
+      error: err => { this.loadingBranches.set(false); this.notify.error(userMessage(err)); }
     });
 
     const routeId = this.route.snapshot.paramMap.get('id');
@@ -187,6 +227,17 @@ export class UserEditComponent {
     if (checked) current.add(name); else current.delete(name);
     this.form.controls.roles.setValue([...current]);
     this.form.controls.roles.markAsDirty();
+  }
+
+  hasBranch(id: string): boolean {
+    return this.form.controls.branchIds.value.includes(id);
+  }
+
+  toggleBranch(id: string, checked: boolean): void {
+    const current = new Set(this.form.controls.branchIds.value);
+    if (checked) current.add(id); else current.delete(id);
+    this.form.controls.branchIds.setValue([...current]);
+    this.form.controls.branchIds.markAsDirty();
   }
 
   invalid(field: string): boolean {
@@ -225,17 +276,25 @@ export class UserEditComponent {
     this.saving.set(true);
     const raw = this.form.getRawValue();
 
+    const cap = raw.maxDiscountPercent === null || raw.maxDiscountPercent === undefined || isNaN(raw.maxDiscountPercent as number)
+      ? null
+      : Number(raw.maxDiscountPercent);
+
     const obs = this.isEdit()
       ? this.api.update(this.id()!, {
           fullName: raw.fullName.trim(),
           isActive: raw.isActive,
-          roles: raw.roles
+          roles: raw.roles,
+          branchIds: raw.branchIds,
+          maxDiscountPercent: cap
         })
       : this.api.create({
           email: raw.email.trim(),
           fullName: raw.fullName.trim(),
           password: raw.password,
-          roles: raw.roles
+          roles: raw.roles,
+          branchIds: raw.branchIds,
+          maxDiscountPercent: cap
         });
 
     obs.subscribe({
@@ -272,7 +331,9 @@ export class UserEditComponent {
       email: u.email,
       fullName: u.fullName,
       isActive: u.isActive,
-      roles: u.roles
+      roles: u.roles,
+      branchIds: u.branchIds ?? [],
+      maxDiscountPercent: u.maxDiscountPercent
     });
   }
 }

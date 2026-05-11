@@ -52,7 +52,7 @@ import { NotificationService } from '../../core/notifications/notification.servi
               <td>{{ c.fullName }}</td>
               <td class="mono">{{ c.phone || '—' }}</td>
               <td class="mono">{{ c.email || '—' }}</td>
-              <td style="text-align:right;" class="mono">{{ c.loyaltyPoints }}</td>
+              <td style="text-align:right;" class="mono">{{ c.totalRewardPoints }}</td>
               <td>
                 <span class="badge" [class.badge-active]="c.isActive" [class.badge-inactive]="!c.isActive">
                   {{ c.isActive ? 'Active' : 'Inactive' }}

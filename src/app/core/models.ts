@@ -1,6 +1,7 @@
 export enum BusinessType {
   Restaurant = 0,
-  Retail = 1
+  Retail = 1,
+  Wholesale = 2
 }
 
 export enum SubscriptionPlan {
@@ -93,6 +94,8 @@ export interface UserDto {
   createdAt: string;
   lastLoginAt: string | null;
   roles: string[];
+  branchIds: string[];
+  maxDiscountPercent: number | null;
 }
 
 export interface CreateUserRequest {
@@ -100,12 +103,16 @@ export interface CreateUserRequest {
   fullName: string;
   password: string;
   roles: string[];
+  branchIds?: string[];
+  maxDiscountPercent?: number | null;
 }
 
 export interface UpdateUserRequest {
   fullName: string;
   isActive: boolean;
   roles: string[];
+  branchIds?: string[];
+  maxDiscountPercent?: number | null;
 }
 
 export interface ResetPasswordRequest {
@@ -114,6 +121,92 @@ export interface ResetPasswordRequest {
 
 export interface RoleDto {
   name: string;
+}
+
+export interface RoleDetailsDto {
+  id: string;
+  name: string;
+  isBuiltIn: boolean;
+  userCount: number;
+  permissions: string[];
+}
+
+export interface PermissionDescriptor {
+  key: string;
+  area: string;
+}
+
+// Business Settings ---------------------------------------------
+
+/** Reward points expiry unit on the API: Day=0, Month=1, Year=2. */
+export enum RewardPointsExpiryUnit {
+  Day = 0,
+  Month = 1,
+  Year = 2,
+}
+
+export interface BusinessSettingsDto {
+  defaultCurrency: string;
+  defaultTimezone: string;
+  fiscalYearStartMonth: number;
+  fiscalYearStartDay: number;
+  taxLabel: string;
+  defaultTaxRateId: string | null;
+  // Reward points (UP-aligned)
+  rewardPointsEnabled: boolean;
+  rewardPointsName: string;
+  rewardPointsAmountPerPoint: number;
+  rewardPointsMinOrderForEarn: number;
+  rewardPointsMaxPerOrder: number | null;
+  rewardPointsRedeemValue: number;
+  rewardPointsMinOrderForRedeem: number;
+  rewardPointsMinRedeem: number | null;
+  rewardPointsMaxRedeem: number | null;
+  rewardPointsExpiryPeriod: number | null;
+  rewardPointsExpiryUnit: RewardPointsExpiryUnit;
+  // Prefixes
+  salesPrefix: string;
+  purchasePrefix: string;
+  expensePrefix: string;
+  customerPrefix: string;
+  posShowStockLevel: boolean;
+}
+
+export type UpdateBusinessSettingsRequest = BusinessSettingsDto;
+
+// Platform (SuperAdmin) ----------------------------------------
+
+export interface PlatformTenantListItem {
+  id: string;
+  name: string;
+  slug: string;
+  businessType: BusinessType;
+  plan: SubscriptionPlan;
+  isActive: boolean;
+  logoUrl: string | null;
+  createdAt: string;
+  companyCount: number;
+  branchCount: number;
+  userCount: number;
+}
+
+export interface PlatformTenantDetails extends PlatformTenantListItem {
+  adminEmail: string | null;
+}
+
+export interface CreatePlatformTenantRequest {
+  name: string;
+  slug: string;
+  businessType: BusinessType;
+  plan: SubscriptionPlan;
+  adminEmail: string;
+  adminFullName: string;
+  adminPassword: string;
+}
+
+export interface UpdatePlatformTenantRequest {
+  name: string;
+  plan: SubscriptionPlan;
 }
 
 export interface ProblemDetails {
@@ -364,7 +457,9 @@ export interface CustomerDto {
   dateOfBirth: string | null;
   gender: Gender | null;
   genderName: string | null;
-  loyaltyPoints: number;
+  totalRewardPoints: number;
+  totalRewardPointsUsed: number;
+  totalRewardPointsExpired: number;
   isActive: boolean;
   createdAt: string;
 }
@@ -665,6 +760,9 @@ export interface OrderDto {
   grandTotalAmount: number;
   paidTotal: number;
   balance: number;
+  rewardPointsEarned: number;
+  rewardPointsRedeemed: number;
+  rewardPointsRedeemedAmount: number;
   lines: OrderLineDto[];
   payments: PaymentDto[];
   promotions: OrderPromotionDto[];

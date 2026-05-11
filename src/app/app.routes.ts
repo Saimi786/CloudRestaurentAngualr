@@ -318,6 +318,26 @@ export const routes: Routes = [
         path: 'users/:id',
         loadComponent: () =>
           import('./features/users/user-edit.component').then(m => m.UserEditComponent)
+      },
+      {
+        path: 'roles',
+        loadComponent: () =>
+          import('./features/roles/roles-admin.component').then(m => m.RolesAdminComponent)
+      },
+      {
+        path: 'settings',
+        loadComponent: () =>
+          import('./features/settings/business-settings.component').then(m => m.BusinessSettingsComponent)
+      },
+      {
+        path: 'platform/tenants',
+        loadComponent: () =>
+          import('./features/platform/platform-tenants-list.component').then(m => m.PlatformTenantsListComponent)
+      },
+      {
+        path: 'platform/tenants/:id',
+        loadComponent: () =>
+          import('./features/platform/platform-tenant-edit.component').then(m => m.PlatformTenantEditComponent)
       }
     ]
   },

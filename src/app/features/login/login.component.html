@@ -1,24 +1,75 @@
 <div class="login-page">
-  <form class="login-card" [formGroup]="form" (ngSubmit)="submit()">
-    <h1>CloudRestaurent</h1>
-    <p class="subtitle">Sign in to continue</p>
+  <aside class="brand-panel">
+    <div class="brand-panel-inner">
+      <div class="brand">
+        <div class="brand-mark">CR</div>
+        <span class="brand-text">CloudRestaurent</span>
+      </div>
 
-    <label>
-      <span>Email</span>
-      <input type="email" formControlName="email" autocomplete="username" />
-    </label>
+      <h2 class="hero">
+        Run every shift,<br>
+        every table,<br>
+        <span class="hero-accent">every dish.</span>
+      </h2>
 
-    <label>
-      <span>Password</span>
-      <input type="password" formControlName="password" autocomplete="current-password" />
-    </label>
+      <p class="lead">
+        A modern, multi-tenant Point of Sale, Kitchen Display, and back-office
+        suite built for restaurants in Pakistan and beyond.
+      </p>
 
-    @if (error()) {
-      <div class="error">{{ error() }}</div>
-    }
+      <ul class="features">
+        <li><span class="dot"></span>Offline-first POS with auto-sync</li>
+        <li><span class="dot"></span>Real-time Kitchen Display System</li>
+        <li><span class="dot"></span>Recipe-driven inventory deduction</li>
+        <li><span class="dot"></span>Role-based access &amp; branch scoping</li>
+      </ul>
 
-    <button type="submit" [disabled]="loading()">
-      {{ loading() ? 'Signing in…' : 'Sign in' }}
-    </button>
-  </form>
+      <div class="brand-footer">© CloudRestaurent · v1.0</div>
+    </div>
+  </aside>
+
+  <main class="auth-side">
+    <form class="auth-card" [formGroup]="form" (ngSubmit)="submit()">
+      <div class="auth-head">
+        <h1>Welcome back</h1>
+        <p class="subtitle">Sign in to your tenant workspace.</p>
+      </div>
+
+      <label>
+        <span>Email address</span>
+        <input type="email" formControlName="email" autocomplete="username" placeholder="you@company.com" />
+      </label>
+
+      <label>
+        <span>Password</span>
+        <input type="password" formControlName="password" autocomplete="current-password" placeholder="••••••••" />
+      </label>
+
+      @if (error()) {
+        <div class="error">{{ error() }}</div>
+      }
+
+      <button type="submit" [disabled]="loading()">
+        @if (loading()) {
+          <span class="spinner"></span> Signing in…
+        } @else {
+          Sign in
+        }
+      </button>
+
+      <div class="demo-hint">
+        <strong>Demo credentials</strong>
+        <div class="demo-row">
+          <span class="demo-label">Tenant Admin</span>
+          <code>admin&#64;demo.local</code>
+          <code>Admin&#64;12345!</code>
+        </div>
+        <div class="demo-row">
+          <span class="demo-label">SuperAdmin</span>
+          <code>superadmin&#64;platform.local</code>
+          <code>SuperAdmin&#64;123!</code>
+        </div>
+      </div>
+    </form>
+  </main>
 </div>

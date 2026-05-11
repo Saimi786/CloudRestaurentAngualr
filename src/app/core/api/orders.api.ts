@@ -44,6 +44,18 @@ export class OrdersApi {
     return this.http.post<OrderDto>(`${this.base}/${orderId}/discount`, { discountAmount });
   }
 
+  overrideLinePrice(orderId: string, lineId: string, unitPrice: number): Observable<OrderDto> {
+    return this.http.put<OrderDto>(`${this.base}/${orderId}/lines/${lineId}/price`, { unitPrice });
+  }
+
+  redeemPoints(orderId: string, points: number): Observable<OrderDto> {
+    return this.http.post<OrderDto>(`${this.base}/${orderId}/redeem-points`, { points });
+  }
+
+  redeemPreview(orderId: string): Observable<RewardRedemptionPreviewDto> {
+    return this.http.get<RewardRedemptionPreviewDto>(`${this.base}/${orderId}/redeem-preview`);
+  }
+
   close(orderId: string): Observable<OrderDto> {
     return this.http.post<OrderDto>(`${this.base}/${orderId}/close`, {});
   }
@@ -51,4 +63,17 @@ export class OrdersApi {
   voidOrder(orderId: string): Observable<OrderDto> {
     return this.http.post<OrderDto>(`${this.base}/${orderId}/void`, {});
   }
+}
+
+export interface RewardRedemptionPreviewDto {
+  enabled: boolean;
+  name: string;
+  customerBalance: number;
+  maxRedeemable: number;
+  redeemValuePerPoint: number;
+  maxRedemptionAmount: number;
+  minRedeemPoints: number | null;
+  minOrderForRedeem: number | null;
+  orderEligible: boolean;
+  ineligibleReason: string | null;
 }

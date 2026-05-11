@@ -169,11 +169,15 @@ import { NotificationService } from '../../core/notifications/notification.servi
 
     @if (isEdit() && customer(); as c) {
       <div class="panel" style="margin-top:1rem; max-width:720px;">
-        <h2 style="margin:0 0 0.5rem; font-size:1rem;">Loyalty</h2>
+        <h2 style="margin:0 0 0.5rem; font-size:1rem;">Reward Points</h2>
         <div class="loyalty-balance">
-          {{ c.loyaltyPoints }} <span class="muted" style="font-weight:400; font-size:0.85rem;">points</span>
+          {{ c.totalRewardPoints }} <span class="muted" style="font-weight:400; font-size:0.85rem;">points</span>
         </div>
-        <p class="muted" style="margin:0 0 1rem;">Earn or redeem points directly. Real loyalty rules will plug in via POS.</p>
+        <p class="muted small" style="margin:0 0 1rem;">
+          Lifetime redeemed: <strong>{{ c.totalRewardPointsUsed }}</strong> ·
+          Expired: <strong>{{ c.totalRewardPointsExpired }}</strong>
+        </p>
+        <p class="muted" style="margin:0 0 1rem;">Manual earn/redeem here adjusts the balance directly. The POS handles the real flow on sales.</p>
 
         <form class="form" [formGroup]="loyaltyForm" (ngSubmit)="adjust('earn')" style="gap:0.75rem;">
           <div class="form-row">
@@ -435,8 +439,8 @@ export class CustomerEditComponent {
       next: c => {
         this.customer.set(c);
         this.notify.success(kind === 'earn'
-          ? `+${points} points earned (balance: ${c.loyaltyPoints}).`
-          : `${points} points redeemed (balance: ${c.loyaltyPoints}).`);
+          ? `+${points} points earned (balance: ${c.totalRewardPoints}).`
+          : `${points} points redeemed (balance: ${c.totalRewardPoints}).`);
         this.loyaltySaving.set(false);
       },
       error: err => {
