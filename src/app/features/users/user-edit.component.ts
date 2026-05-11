@@ -57,22 +57,36 @@ import { NotificationService } from '../../core/notifications/notification.servi
       }
 
       <div class="fieldset-title">Roles</div>
-      <div class="roles-grid">
-        @if (loadingRoles()) {
-          <span class="muted">Loading roles…</span>
-        } @else {
-          @for (role of availableRoles(); track role.name) {
-            <label class="role-checkbox">
-              <input type="checkbox"
-                     [checked]="hasRole(role.name)"
-                     (change)="toggleRole(role.name, $any($event.target).checked)" />
-              <span>{{ role.name }}</span>
-            </label>
+      <div class="form-row">
+        <div class="field" [class.invalid]="form.controls.roles.touched && form.controls.roles.errors?.['server']">
+          <label>Assigned roles</label>
+          @if (loadingRoles()) {
+            <select disabled><option>Loading roles…</option></select>
+          } @else {
+            <select multiple class="role-select" size="6"
+                    (change)="onRolesChange($any($event.target))">
+              @for (role of availableRoles(); track role.name) {
+                <option [value]="role.name" [attr.selected]="hasRole(role.name) ? '' : null">{{ role.name }}</option>
+              }
+            </select>
           }
-        }
+          <small>
+            Hold <kbd>Ctrl</kbd> (or <kbd>⌘</kbd> on Mac) to pick multiple roles.
+            @if (form.controls.roles.value.length > 0) {
+              <strong> · {{ form.controls.roles.value.length }} selected</strong>
+            }
+          </small>
+          @if (form.controls.roles.touched && form.controls.roles.errors?.['server']) {
+            <div class="field-error">{{ form.controls.roles.errors?.['server'] }}</div>
+          }
+        </div>
       </div>
-      @if (form.controls.roles.touched && form.controls.roles.errors?.['server']) {
-        <div class="field-error">{{ form.controls.roles.errors?.['server'] }}</div>
+      @if (form.controls.roles.value.length > 0) {
+        <div class="role-pills">
+          @for (r of form.controls.roles.value; track r) {
+            <span class="role-pill">{{ r }} <button type="button" (click)="toggleRole(r, false)" title="Remove">×</button></span>
+          }
+        </div>
       }
 
       <div class="fieldset-title">Branches</div>
@@ -146,10 +160,71 @@ import { NotificationService } from '../../core/notifications/notification.servi
       gap: 0.5rem;
       cursor: pointer;
       padding: 0.4rem 0.6rem;
-      border: 1px solid #e5e7eb;
-      border-radius: 6px;
-      &:hover { background: #f9fafb; }
-      input { accent-color: #3b82f6; }
+      border: 1px solid var(--c-border);
+      border-radius: var(--radius-md);
+      transition: all var(--t-fast);
+      &:hover { background: var(--c-surface-hover); }
+      input { accent-color: var(--c-primary); }
+    }
+
+    /* Multi-role select dropdown */
+    .role-select {
+      width: 100%;
+      padding: 0.5rem 0.7rem;
+      font-family: inherit;
+      font-size: 0.9rem;
+      border: 1px solid var(--c-border-strong);
+      border-radius: var(--radius-md);
+      background: var(--c-surface);
+
+      option {
+        padding: 0.45rem 0.7rem;
+        border-radius: 4px;
+      }
+      option:checked {
+        background: var(--c-primary) linear-gradient(0deg, var(--c-primary), var(--c-primary));
+        color: #fff;
+        font-weight: 600;
+      }
+      &:focus {
+        outline: none;
+        border-color: var(--c-primary);
+        box-shadow: var(--shadow-focus);
+      }
+    }
+    kbd {
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      padding: 0.05rem 0.35rem;
+      background: var(--c-surface-alt);
+      border: 1px solid var(--c-border);
+      border-radius: 4px;
+    }
+
+    .role-pills {
+      display: flex; flex-wrap: wrap; gap: 0.35rem;
+      margin-top: 0.5rem;
+    }
+    .role-pill {
+      display: inline-flex; align-items: center; gap: 0.3rem;
+      padding: 0.25rem 0.35rem 0.25rem 0.7rem;
+      background: var(--c-primary-soft);
+      color: var(--c-primary-active);
+      border-radius: var(--radius-pill);
+      font-size: 0.78rem;
+      font-weight: 600;
+      button {
+        width: 18px; height: 18px;
+        border-radius: 50%;
+        border: none;
+        background: rgba(79, 70, 229, 0.15);
+        color: var(--c-primary-active);
+        cursor: pointer;
+        font-size: 0.85rem;
+        line-height: 1;
+        display: grid; place-items: center;
+        &:hover { background: var(--c-danger); color: #fff; }
+      }
     }
     .toggle {
       display: flex; align-items: center; gap: 0.5rem;
@@ -226,6 +301,13 @@ export class UserEditComponent {
     const current = new Set(this.form.controls.roles.value);
     if (checked) current.add(name); else current.delete(name);
     this.form.controls.roles.setValue([...current]);
+    this.form.controls.roles.markAsDirty();
+  }
+
+  /** Browser <select multiple> change handler — read every selected <option>. */
+  onRolesChange(select: HTMLSelectElement): void {
+    const picked = Array.from(select.selectedOptions).map(o => o.value);
+    this.form.controls.roles.setValue(picked);
     this.form.controls.roles.markAsDirty();
   }
 

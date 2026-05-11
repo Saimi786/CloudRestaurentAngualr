@@ -46,49 +46,51 @@ import { NotificationService } from '../../core/notifications/notification.servi
       </div>
     </div>
 
-    <table class="data-table">
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th>Code</th>
-          <th>Company</th>
-          <th>City</th>
-          <th>Phone</th>
-          <th>Status</th>
-          <th></th>
-        </tr>
-      </thead>
-      <tbody>
-        @if (loading()) {
-          <tr><td colspan="7" class="empty">Loading…</td></tr>
-        } @else if (branches().length === 0) {
-          <tr><td colspan="7" class="empty">No branches yet.</td></tr>
-        } @else {
-          @for (b of branches(); track b.id) {
-            <tr [class.inactive]="!b.isActive">
-              <td>{{ b.name }}</td>
-              <td class="mono">{{ b.code }}</td>
-              <td>{{ companyName(b.companyId) }}</td>
-              <td>{{ b.location.city || '—' }}</td>
-              <td>{{ b.phoneNumber || '—' }}</td>
-              <td>
-                <span class="badge" [class.badge-active]="b.isActive" [class.badge-inactive]="!b.isActive">
-                  {{ b.isActive ? 'Active' : 'Inactive' }}
-                </span>
-              </td>
-              <td class="actions">
-                <a class="btn btn-sm" [routerLink]="['/branches', b.id]">
-                  {{ auth.hasRole('SuperAdmin') ? 'Edit' : 'View' }}
-                </a>
-                @if (auth.hasRole('SuperAdmin') && b.isActive) {
-                  <button class="btn btn-sm btn-danger" (click)="deactivate(b)">Deactivate</button>
-                }
-              </td>
-            </tr>
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Code</th>
+            <th>Company</th>
+            <th>City</th>
+            <th>Phone</th>
+            <th>Status</th>
+            <th style="text-align:right;">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @if (loading()) {
+            <tr><td colspan="7" class="empty">Loading branches…</td></tr>
+          } @else if (branches().length === 0) {
+            <tr><td colspan="7" class="empty">No branches yet.</td></tr>
+          } @else {
+            @for (b of branches(); track b.id) {
+              <tr [class.inactive]="!b.isActive">
+                <td><strong>{{ b.name }}</strong></td>
+                <td class="mono">{{ b.code }}</td>
+                <td>{{ companyName(b.companyId) }}</td>
+                <td>{{ b.location.city || '—' }}</td>
+                <td class="mono small">{{ b.phoneNumber || '—' }}</td>
+                <td>
+                  <span class="badge" [class.badge-active]="b.isActive" [class.badge-danger]="!b.isActive">
+                    {{ b.isActive ? 'Active' : 'Inactive' }}
+                  </span>
+                </td>
+                <td class="actions">
+                  <a class="btn btn-sm" [routerLink]="['/branches', b.id]">
+                    {{ auth.hasRole('SuperAdmin') ? '✎ Edit' : 'View' }}
+                  </a>
+                  @if (auth.hasRole('SuperAdmin') && b.isActive) {
+                    <button class="btn btn-sm btn-danger" (click)="deactivate(b)">Deactivate</button>
+                  }
+                </td>
+              </tr>
+            }
           }
-        }
-      </tbody>
-    </table>
+        </tbody>
+      </table>
+    </div>
   `,
   styles: [`
     select {

@@ -86,6 +86,7 @@ export interface UpdateBranchRequest extends Omit<CreateBranchRequest, 'companyI
   id: string;
   receiptTemplate?: ReceiptTemplate | null;
   receiptFooterText?: string | null;
+  isActive?: boolean | null;
 }
 
 // Users -----------------------------------------------------------

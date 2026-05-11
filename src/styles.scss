@@ -267,6 +267,24 @@ code, .mono { font-family: var(--font-mono); font-size: 0.85em; }
 /* =============================================================
    Tables
    ============================================================= */
+/* Wrap any .data-table in a .table-wrap to get horizontal scroll on small screens
+   without breaking the rounded panel look. */
+.table-wrap {
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-xs);
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+
+  .data-table {
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+    min-width: 720px;
+  }
+}
+
 .data-table {
   width: 100%;
   background: var(--c-surface);
