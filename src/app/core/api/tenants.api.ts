@@ -12,4 +12,10 @@ export class TenantsApi {
   getCurrent(): Observable<TenantDto> {
     return this.http.get<TenantDto>(`${this.base}/me`);
   }
+
+  uploadLogo(file: File): Observable<TenantDto> {
+    const fd = new FormData();
+    fd.append('file', file);
+    return this.http.post<TenantDto>(`${this.base}/me/logo`, fd);
+  }
 }

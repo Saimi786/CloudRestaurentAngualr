@@ -3,9 +3,11 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { BranchesApi } from '../../core/api/branches.api';
 import { CompaniesApi } from '../../core/api/companies.api';
+import { TenantsApi } from '../../core/api/tenants.api';
 import { applyServerErrors, userMessage } from '../../core/errors/problem-details.helper';
-import { CompanyDto, LocationDto } from '../../core/models';
+import { CompanyDto, LocationDto, ReceiptTemplate, TenantDto } from '../../core/models';
 import { NotificationService } from '../../core/notifications/notification.service';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-branch-edit',
@@ -83,6 +85,40 @@ import { NotificationService } from '../../core/notifications/notification.servi
         </div>
       </div>
 
+      @if (isEdit()) {
+        <div class="fieldset-title">Receipt &amp; Branding</div>
+        <div class="form-row">
+          <div class="field">
+            <label>Receipt Template</label>
+            <select formControlName="receiptTemplate">
+              <option [ngValue]="0">Compact (80mm thermal)</option>
+              <option [ngValue]="1">Classic (A4 / Letter)</option>
+            </select>
+          </div>
+          <div class="field" style="flex:2">
+            <label>Receipt Footer Text</label>
+            <input formControlName="receiptFooterText" placeholder="Thank you — please come again" />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="field" style="flex:1">
+            <label>Tenant Logo (shared across all branches)</label>
+            <div style="display:flex;align-items:center;gap:1rem;">
+              @if (logoSrc()) {
+                <img [src]="logoSrc()" alt="logo"
+                     style="max-width:80px;max-height:60px;border:1px solid #d1d5db;padding:4px;background:#fff;" />
+              } @else {
+                <div class="muted" style="font-size:0.85rem;">No logo set.</div>
+              }
+              <input type="file" accept="image/png,image/jpeg,image/webp,image/svg+xml"
+                     (change)="onLogoFile($event)" [disabled]="uploadingLogo()" />
+              @if (uploadingLogo()) { <span class="muted">Uploading…</span> }
+            </div>
+          </div>
+        </div>
+      }
+
       <div class="form-actions">
         <a class="btn" routerLink="/branches">Cancel</a>
         <button type="submit" class="btn btn-primary" [disabled]="saving()">
@@ -96,6 +132,7 @@ export class BranchEditComponent {
   private readonly fb = inject(FormBuilder);
   private readonly api = inject(BranchesApi);
   private readonly companiesApi = inject(CompaniesApi);
+  private readonly tenantsApi = inject(TenantsApi);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly notify = inject(NotificationService);
@@ -104,12 +141,24 @@ export class BranchEditComponent {
   protected readonly isEdit = computed(() => this.id() !== null);
   protected readonly saving = signal(false);
   protected readonly companies = signal<CompanyDto[]>([]);
+  protected readonly tenant = signal<TenantDto | null>(null);
+  protected readonly uploadingLogo = signal(false);
+
+  protected readonly logoSrc = computed(() => {
+    const t = this.tenant();
+    if (!t?.logoUrl) return null;
+    if (t.logoUrl.startsWith('http')) return t.logoUrl;
+    const origin = environment.apiBaseUrl.replace(/\/api\/v\d+\/?$/, '');
+    return origin + t.logoUrl;
+  });
 
   protected readonly form = this.fb.nonNullable.group({
     companyId: ['', [Validators.required]],
     name: ['', [Validators.required, Validators.maxLength(200)]],
     code: ['', [Validators.required, Validators.maxLength(50), Validators.pattern(/^[A-Z0-9-]+$/)]],
     phoneNumber: [''],
+    receiptTemplate: [0 as ReceiptTemplate],
+    receiptFooterText: [''],
     location: this.fb.nonNullable.group({
       addressLine1: [''],
       addressLine2: [''],
@@ -129,12 +178,18 @@ export class BranchEditComponent {
     const routeId = this.route.snapshot.paramMap.get('id');
     if (routeId && routeId !== 'new') {
       this.id.set(routeId);
+      this.tenantsApi.getCurrent().subscribe({
+        next: t => this.tenant.set(t),
+        error: () => {}
+      });
       this.api.get(routeId).subscribe(b => {
         this.form.patchValue({
           companyId: b.companyId,
           name: b.name,
           code: b.code,
           phoneNumber: b.phoneNumber ?? '',
+          receiptTemplate: b.receiptTemplate ?? 0,
+          receiptFooterText: b.receiptFooterText ?? '',
           location: {
             addressLine1: b.location.addressLine1 ?? '',
             addressLine2: b.location.addressLine2 ?? '',
@@ -194,7 +249,9 @@ export class BranchEditComponent {
           name: raw.name.trim(),
           code: raw.code.toUpperCase(),
           phoneNumber: raw.phoneNumber?.trim() || null,
-          location
+          location,
+          receiptTemplate: raw.receiptTemplate ?? 0,
+          receiptFooterText: raw.receiptFooterText?.trim() || null
         })
       : this.api.create({
           companyId: raw.companyId,
@@ -213,6 +270,25 @@ export class BranchEditComponent {
         this.saving.set(false);
         if (!applyServerErrors(this.form, err))
           this.notify.error(userMessage(err));
+      }
+    });
+  }
+
+  onLogoFile(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file) return;
+    this.uploadingLogo.set(true);
+    this.tenantsApi.uploadLogo(file).subscribe({
+      next: t => {
+        this.tenant.set(t);
+        this.uploadingLogo.set(false);
+        this.notify.success('Logo uploaded.');
+        input.value = '';
+      },
+      error: err => {
+        this.uploadingLogo.set(false);
+        this.notify.error(userMessage(err));
       }
     });
   }

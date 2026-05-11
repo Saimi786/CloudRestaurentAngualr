@@ -15,7 +15,7 @@ import { NotificationService } from '../../../core/notifications/notification.se
     <div class="page-header">
       <div>
         <h1>Categories</h1>
-        <p class="muted">Group your products into menu sections.</p>
+        <p class="muted">Hierarchical menu sections — categories can have sub-categories of any depth.</p>
       </div>
       <div class="actions">
         <label class="muted" style="display:flex;align-items:center;gap:0.4rem;">
@@ -30,18 +30,22 @@ import { NotificationService } from '../../../core/notifications/notification.se
 
     <table class="data-table">
       <thead>
-        <tr><th>Order</th><th>Name</th><th>Status</th><th></th></tr>
+        <tr><th>Order</th><th>Name</th><th>Path</th><th>Status</th><th></th></tr>
       </thead>
       <tbody>
         @if (loading()) {
-          <tr><td colspan="4" class="empty">Loading…</td></tr>
+          <tr><td colspan="5" class="empty">Loading…</td></tr>
         } @else if (rows().length === 0) {
-          <tr><td colspan="4" class="empty">No categories yet.</td></tr>
+          <tr><td colspan="5" class="empty">No categories yet.</td></tr>
         } @else {
           @for (c of rows(); track c.id) {
             <tr [class.inactive]="!c.isActive">
               <td>{{ c.displayOrder }}</td>
-              <td>{{ c.name }}</td>
+              <td [style.padding-left.rem]="0.5 + c.depth * 1.25">
+                @if (c.depth > 0) { <span class="muted">↳ </span> }
+                {{ c.name }}
+              </td>
+              <td class="muted">{{ c.fullPath }}</td>
               <td>
                 <span class="badge" [class.badge-active]="c.isActive" [class.badge-inactive]="!c.isActive">
                   {{ c.isActive ? 'Active' : 'Inactive' }}

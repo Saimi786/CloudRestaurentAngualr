@@ -31,4 +31,8 @@ export class ProductsApi {
   deactivate(id: string): Observable<void> {
     return this.http.delete<void>(`${this.base}/${id}`);
   }
+
+  setAvailability(id: string, isAvailable: boolean): Observable<void> {
+    return this.http.put<void>(`${this.base}/${id}/availability`, { isAvailable });
+  }
 }

@@ -3,7 +3,8 @@ import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import {
-  RecordStockMovementRequest, StockBalanceDto, StockMovementDto, StockMovementType
+  RecordStockMovementRequest, StockBalanceDto, StockMovementDto, StockMovementType,
+  StockTransferResultDto, TransferStockRequest
 } from '../models';
 
 @Injectable({ providedIn: 'root' })
@@ -39,5 +40,9 @@ export class StockApi {
 
   recordMovement(body: RecordStockMovementRequest): Observable<StockMovementDto> {
     return this.http.post<StockMovementDto>(`${this.base}/movements`, body);
+  }
+
+  transfer(body: TransferStockRequest): Observable<StockTransferResultDto> {
+    return this.http.post<StockTransferResultDto>(`${this.base}/transfers`, body);
   }
 }
