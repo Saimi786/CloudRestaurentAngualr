@@ -66,10 +66,8 @@
       <a routerLink="/tax-rates" routerLinkActive="active"><span class="ico">🧮</span>Tax Rates</a>
       <a routerLink="/imports" routerLinkActive="active"><span class="ico">📤</span>CSV Import</a>
 
-      @if (auth.hasRole('SuperAdmin')) {
-        <div class="nav-section platform">⚡ Platform</div>
-        <a routerLink="/platform/tenants" routerLinkActive="active"><span class="ico">🏢</span>All Tenants</a>
-      }
+      <!-- Platform section removed from the sidebar — SuperAdmin reaches
+           the Platform area via the ⚡ button in the top bar. -->
     </nav>
   </aside>
 
