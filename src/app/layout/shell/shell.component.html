@@ -11,16 +11,13 @@
       <a routerLink="/pos" routerLinkActive="active"><span class="ico">🛒</span>POS</a>
       <a routerLink="/kitchen" routerLinkActive="active"><span class="ico">🍳</span>Kitchen Display</a>
 
-      <div class="nav-section">Setup</div>
       <a routerLink="/dashboard" routerLinkActive="active"><span class="ico">📊</span>Dashboard</a>
-      @if (auth.hasRole('SuperAdmin')) {
-        <!-- Tenant / Companies / Branches are platform-structural — only the
-             SuperAdmin can navigate to them. Tenant admins manage day-to-day
-             operations only (catalog, POS, inventory, etc). -->
-        <a routerLink="/tenant" routerLinkActive="active"><span class="ico">🏢</span>Tenant</a>
-        <a routerLink="/companies" routerLinkActive="active"><span class="ico">🏬</span>Companies</a>
-        <a routerLink="/branches" routerLinkActive="active"><span class="ico">📍</span>Branches</a>
-      }
+      <!-- Tenant / Companies / Branches removed from the sidebar — they're
+           managed exclusively via the SuperAdmin Platform area (top-right
+           ⚡ button → All Businesses → Manage). Tenant admins shouldn't see
+           that structural layer at all; they pick their active location
+           from the location dropdown in the top bar. -->
+
 
       <div class="nav-section">Catalog</div>
       <a routerLink="/catalog/products" routerLinkActive="active"><span class="ico">📦</span>Products</a>
@@ -79,8 +76,52 @@
   <div class="main">
     <header class="topbar">
       <div class="topbar-title">
-        @if (auth.user(); as user) {
-          <span class="tenant-chip">Tenant · {{ user.tenantId.substring(0, 8) }}</span>
+        <!-- Active location picker. Click to switch the operating context. -->
+        @if (location.loaded() && location.options().length > 0) {
+          <div class="location-picker" [class.open]="pickerOpen()">
+            <button class="location-btn" type="button" (click)="togglePicker()">
+              <span class="loc-ico">📍</span>
+              <span class="loc-label">
+                @if (location.current(); as c) {
+                  <strong>{{ c.tenantName }}</strong>
+                  <small>{{ c.branchName }} · {{ c.city || c.country || c.branchCode }}</small>
+                } @else {
+                  <strong>Select location</strong>
+                  <small>{{ location.options().length }} available</small>
+                }
+              </span>
+              <span class="loc-caret">▾</span>
+            </button>
+            @if (pickerOpen()) {
+              <div class="location-menu">
+                <div class="loc-menu-head">
+                  <strong>Switch location</strong>
+                  <small class="muted">{{ location.options().length }} locations</small>
+                </div>
+                <ul class="loc-list">
+                  @for (o of location.options(); track o.branchId) {
+                    <li>
+                      <button type="button" class="loc-item"
+                              [class.selected]="location.currentId() === o.branchId"
+                              (click)="pick(o.branchId)">
+                        <span class="loc-item-mark">
+                          @if (location.currentId() === o.branchId) { ✓ } @else { &nbsp; }
+                        </span>
+                        <span class="loc-item-text">
+                          <strong>{{ o.tenantName }}</strong>
+                          <small>{{ o.branchName }} · {{ o.city || o.country || o.branchCode }}</small>
+                        </span>
+                      </button>
+                    </li>
+                  }
+                </ul>
+              </div>
+            }
+          </div>
+        } @else if (auth.user()) {
+          @if (auth.user()!; as user) {
+            <span class="tenant-chip">Tenant · {{ user.tenantId.substring(0, 8) }}</span>
+          }
         }
       </div>
       <div class="topbar-user">
